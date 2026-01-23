@@ -9,7 +9,11 @@
 <h1>Online Assessment</h1>
 <button onclick="startExam()">Start Exam</button>
 
-<video id="camera" autoplay muted></video>
+<video id="camera" autoplay muted playsinline></video>
+
+<div id="warning-box" class="warning-box hidden"></div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
