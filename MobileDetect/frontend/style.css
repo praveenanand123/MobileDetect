@@ -15,4 +15,19 @@ button {
     font-size: 16px;
     cursor: pointer;
 }
+.warning-box {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ff3b3b;
+  color: white;
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 9999;
+}
+
+.hidden {
+  display: none;
+}
 
