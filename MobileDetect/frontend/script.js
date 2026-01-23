@@ -14,8 +14,6 @@ const BACKEND_URL = "https://your-backend.onrender.com/log_violation";
 function sendViolation(type) {
     warningCount++;
 
-    alert(`⚠ Warning ${warningCount}/${MAX_WARNINGS}: ${type}`);
-
     fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -26,6 +24,32 @@ function sendViolation(type) {
     });
 
     if (warningCount >= MAX_WARNINGS) {
+        autoSubmitExam();
+    }
+}
+let WarningCount = 0;
+let lastWarningTime = {};
+
+function showWarning(type) {
+    const now = Date.now();
+
+    // cooldown per violation (5 seconds)
+    if (lastWarningTime[type] && now - lastWarningTime[type] < 5000) {
+        return;
+    }
+
+    lastWarningTime[type] = now;
+    warningCount++;
+
+    const box = document.getElementById("warning-box");
+    box.textContent = `⚠️ Warning ${warningCount}/3: ${type}`;
+    box.classList.remove("hidden");
+
+    setTimeout(() => {
+        box.classList.add("hidden");
+    }, 3000);
+
+    if (warningCount >= 3) {
         autoSubmitExam();
     }
 }
@@ -68,9 +92,6 @@ async function startExam() {
         e.preventDefault();
         sendViolation("COPY_PASTE_BLOCKED");
     });
-});
-window.addEventListener("blur", () => {
-    sendViolation("WINDOW_BLUR");
 });
 
 document.addEventListener("contextmenu", e => {
@@ -175,7 +196,6 @@ async function startCamera() {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
 }
-window.onblur = () => sendViolation("WINDOW_BLUR");
 
 setInterval(() => {
     if (!document.fullscreenElement) {
@@ -184,9 +204,18 @@ setInterval(() => {
     }
 }, 3000);
 
+function autoSubmitExam() {
+    document.exitFullscreen();
+    document.body.innerHTML = `
+        <h1>🚫 Exam Auto-Submitted</h1>
+        <p>You violated exam rules multiple times.</p>
+    `;
+}
+
 
 
 
 
     
+
 
