@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mobile Detection Exam</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Online Assessment</h1>
+<button onclick="startExam()">Start Exam</button>
+
+<video id="camera" autoplay muted></video>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabase = supabase.createClient("SUPABASE_URL","SUPABASE_ANON_KEY");
+supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) window.location.href = "login.html";
+});
+</script>
+
+
+<!-- AI Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+<!-- Your Script -->
+<script src="script.js"></script>
+</body>
+</html>
