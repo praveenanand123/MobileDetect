@@ -1,0 +1,18 @@
+body {
+    background: #0f1625;
+    color: white;
+    text-align: center;
+    font-family: Arial;
+}
+
+video {
+    width: 300px;
+    border: 2px solid red;
+    margin-top: 20px;
+}
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+

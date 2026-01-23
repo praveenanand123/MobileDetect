@@ -1,0 +1,42 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const supabase = supabase.createClient("SUPABASE_URL","SUPABASE_ANON_KEY");
+
+(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) window.location.href = "login.html";
+
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+    if (profile.role !== "admin") {
+        alert("Access denied");
+        window.location.href = "login.html";
+    }
+})();
+</script>
+
+<h1>Admin Dashboard</h1>
+<ul id="logs"></ul>
+
+<script>
+fetch("https://YOUR_SUPABASE_URL/rest/v1/violations", {
+  headers: {
+    apikey: "SUPABASE_ANON_KEY",
+    Authorization: "Bearer SUPABASE_ANON_KEY"
+  }
+})
+.then(res => res.json())
+.then(data => {
+  const ul = document.getElementById("logs");
+  data.forEach(v => {
+    const li = document.createElement("li");
+    li.innerText = `${v.session_id} → ${v.type}`;
+    ul.appendChild(li);
+  });
+});
+</script>
+<<a href="https://your-backend.onrender.com/export">Download Report</a>
