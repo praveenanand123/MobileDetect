@@ -207,6 +207,27 @@ setInterval(() => {
     }
 }, 3000);
 
+function captureScreenshot(video, violationType) {
+    const snap = document.createElement("canvas");
+    snap.width = video.videoWidth;
+    snap.height = video.videoHeight;
+    const ctx = snap.getContext("2d");
+
+    ctx.drawImage(video, 0, 0);
+
+    const imageData = snap.toDataURL("image/png");
+
+    fetch("https://YOUR_BACKEND_URL/log_violation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            session_id: SESSION_ID,
+            type: violationType,
+            image: imageData
+        })
+    });
+}
+
 function autoSubmitExam() {
     document.exitFullscreen();
     document.body.innerHTML = `
