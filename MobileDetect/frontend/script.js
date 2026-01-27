@@ -1,3 +1,4 @@
+let canvas, ctx;
 let model = null;
 let cameraStream = null;
 let lastMobileDetected = 0;
@@ -217,6 +218,7 @@ function autoSubmitExam() {
 
 
     
+
 
 
 
