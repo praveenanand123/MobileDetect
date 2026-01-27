@@ -1,3 +1,4 @@
+const SESSION_ID = crypto.randomUUID();
 let model;
 let detecting = false;
 let lastMobileTime = 0;
@@ -160,7 +161,8 @@ async function detectMobile(video) {
             if (now - lastMobileTime > 5000) {
                 lastMobileTime = now;
                 console.log("📵 Mobile detected");
-                sendViolation("MOBILE_DETECTED");
+                sendViolation("MOBILE_PHONE_DETECTED");
+                captureScreenshot(video, "MOBILE_PHONE_DETECTED");
             }
         }
     });
