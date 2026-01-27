@@ -56,6 +56,15 @@ function showWarning(type) {
     }
 }
 
+function setupCanvas(video) {
+    canvas = document.getElementById("overlay");
+    ctx = canvas.getContext("2d");
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+}
+
+
 
 async function startExam() {
     examStarted = true;
@@ -89,15 +98,6 @@ async function startExam() {
         }
     });
 
-    /* COPY / PASTE / CUT */
-    ["copy", "paste", "cut"].forEach(event => {
-        document.addEventListener(event, e => {
-            if (!examStarted || isGracePeriod()) return;
-            e.preventDefault();
-            sendViolation("COPY_PASTE_BLOCKED");
-        });
-    });
-}
 
 function isGracePeriod() {
     return Date.now() - examStartTime < 5000; // 5 seconds
@@ -152,17 +152,35 @@ async function detectMobile(video) {
 
     const predictions = await model.detect(video);
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     predictions.forEach(pred => {
-        if (
-            pred.class === "cell phone" &&
-            pred.score > 0.6 &&
-            Date.now() - lastMobileDetected > 8000
-        ) {
-            lastMobileDetected = Date.now();
-            sendViolation("MOBILE_PHONE_DETECTED");
+        if (pred.class === "cell phone" && pred.score > 0.6) {
+            const [x, y, width, height] = pred.bbox;
+
+            // Draw bounding box
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x, y, width, height);
+
+            ctx.fillStyle = "red";
+            ctx.font = "16px Arial";
+            ctx.fillText(
+                `Phone (${Math.round(pred.score * 100)}%)`,
+                x,
+                y > 20 ? y - 5 : y + 20
+            );
+
+            // Cooldown protection
+            if (Date.now() - lastMobileDetected > 8000) {
+                lastMobileDetected = Date.now();
+                sendViolation("MOBILE_PHONE_DETECTED");
+                captureScreenshot(); // 📸 screenshot on detection
+            }
         }
     });
 }
+
 
 
 function startDetection(video) {
@@ -218,6 +236,7 @@ function autoSubmitExam() {
 
 
     
+
 
 
 
