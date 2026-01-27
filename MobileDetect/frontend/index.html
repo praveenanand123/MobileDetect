@@ -10,6 +10,7 @@
 <button onclick="startExam()">Start Exam</button>
 
 <video id="camera" autoplay muted playsinline></video>
+    <canvas id="overlay"></canvas>
 <div id="warning-box" class="warning-box hidden"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -29,4 +30,5 @@ supabase.auth.getUser().then(({ data }) => {
 <script src="script.js"></script>
 </body>
 </html>
+
 
