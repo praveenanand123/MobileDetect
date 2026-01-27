@@ -1,67 +1,39 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from supabase import create_client
 from pydantic import BaseModel
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from supabase import create_client
+import base64, uuid, os
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-app = FastAPI()
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+app = FastAPI()
 
 class Violation(BaseModel):
     session_id: str
     type: str
+    image: str | None = None
+
 
 @app.post("/log_violation")
-async def log_violation(v: Violation):
+def log_violation(v: Violation):
+    screenshot_url = None
+
+    if v.image:
+        image_bytes = base64.b64decode(v.image.split(",")[1])
+        filename = f"{uuid.uuid4()}.png"
+
+        supabase.storage.from_("violations").upload(
+            filename, image_bytes, {"content-type": "image/png"}
+        )
+
+        screenshot_url = supabase.storage.from_("violations").get_public_url(filename)
+
     supabase.table("violations").insert({
         "session_id": v.session_id,
-        "type": v.type
+        "type": v.type,
+        "screenshot_url": screenshot_url
     }).execute()
-    return {"status": "ok"}
 
-@app.get("/")
-async def root():
-    return {"message": "Backend running"}
-
-from fastapi.responses import StreamingResponse
-import csv
-import io
-
-@app.get("/export")
-def export_csv():
-    data = supabase.table("violations").select("*").execute().data
-
-    buffer = io.StringIO()
-    writer = csv.writer(buffer)
-    writer.writerow(["session_id", "type", "time"])
-
-    for row in data:
-        writer.writerow([row["session_id"], row["type"], row["created_at"]])
-
-    buffer.seek(0)
-    return StreamingResponse(buffer, media_type="text/csv")
-
-import os
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8000))
-    )
+    return {"status": "logged"}
