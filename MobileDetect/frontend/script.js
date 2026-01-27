@@ -1,6 +1,6 @@
-let model;
-let detecting = false;
-let lastMobileTime = 0;
+let model = null;
+let cameraStream = null;
+let lastMobileDetected = 0;
 
 console.log("script.js loaded"); // DEBUG LINE
 let warningCount = 0;
@@ -13,6 +13,7 @@ const BACKEND_URL = "https://your-backend.onrender.com/log_violation";
 
 function sendViolation(type) {
     warningCount++;
+
 
     fetch(BACKEND_URL, {
         method: "POST",
@@ -56,51 +57,52 @@ function showWarning(type) {
 
 
 async function startExam() {
-    alert("Exam Started");
+    examStarted = true;
+    examStartTime = Date.now();
 
-    document.documentElement.requestFullscreen();
+    await document.documentElement.requestFullscreen();
 
     const video = await startCamera();
-    await loadModel();
-    startDetectionLoop(video);
+    await loadMobileModel();     // mobile model
+    startMobileDetection(video); // mobile detection loop
 
-    // Tab switch detection
+    /* TAB SWITCH */
     document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            sendViolation("TAB_SWITCH");
-        }
+        if (!examStarted || isGracePeriod()) return;
+        if (document.hidden) sendViolation("TAB_SWITCH");
     });
 
-    // Fullscreen exit
+    /* FULLSCREEN EXIT */
     document.addEventListener("fullscreenchange", () => {
-        if (!document.fullscreenElement) {
-            sendViolation("EXIT_FULLSCREEN");
-        }
+        if (!examStarted || isGracePeriod()) return;
+        if (!document.fullscreenElement) sendViolation("EXIT_FULLSCREEN");
     });
 
-    
-    // Shortcut blocking
+    /* SHORTCUT BLOCKING */
     document.addEventListener("keydown", e => {
+        if (!examStarted || isGracePeriod()) return;
+
         if (e.ctrlKey || e.altKey || e.key === "Tab") {
             e.preventDefault();
             sendViolation("BLOCKED_KEY");
         }
     });
-}
-["copy", "paste", "cut"].forEach(event => {
-    document.addEventListener(event, e => {
-        e.preventDefault();
-        sendViolation("COPY_PASTE_BLOCKED");
+
+    /* COPY / PASTE / CUT */
+    ["copy", "paste", "cut"].forEach(event => {
+        document.addEventListener(event, e => {
+            if (!examStarted || isGracePeriod()) return;
+            e.preventDefault();
+            sendViolation("COPY_PASTE_BLOCKED");
+        });
     });
-});
+}
 
-document.addEventListener("contextmenu", e => {
-    e.preventDefault();
-    sendViolation("RIGHT_CLICK_BLOCKED");
-});
+function isGracePeriod() {
+    return Date.now() - examStartTime < 5000; // 5 seconds
+}
 
-let lastWidth = window.innerWidth;
-let lastHeight = window.innerHeight;
+
 
 window.addEventListener("resize", () => {
     if (
@@ -144,37 +146,33 @@ async function loadModel() {
 }
 
 async function detectMobile(video) {
-    if (!model || detecting) return;
-
-    detecting = true;
+    if (!examStarted || isGracePeriod()) return;
+    if (!model) return;
 
     const predictions = await model.detect(video);
 
     predictions.forEach(pred => {
-        if (pred.class === "cell phone" && pred.score > 0.6) {
-            const now = Date.now();
-
-            // cooldown: 5 seconds
-            if (now - lastMobileTime > 5000) {
-                lastMobileTime = now;
-                console.log("📵 Mobile detected");
-                sendViolation("MOBILE_DETECTED");
-            }
+        if (
+            pred.class === "cell phone" &&
+            pred.score > 0.6 &&
+            Date.now() - lastMobileDetected > 8000
+        ) {
+            lastMobileDetected = Date.now();
+            sendViolation("MOBILE_PHONE_DETECTED");
         }
     });
-
-    detecting = false;
 }
 
-function startDetectionLoop(video) {
+
+function startDetection(video) {
     setInterval(() => {
         detectMobile(video);
-    }, 1000); // 1 frame per second
+    }, 1200); // 1 frame per second
 }
 
 
 function autoSubmitExam() {
-    alert("❌ Maximum violations reached. Exam auto-submitted.");
+
 
     fetch(BACKEND_URL, {
         method: "POST",
@@ -197,6 +195,7 @@ async function startCamera() {
     video.srcObject = stream;
 }
 
+
 setInterval(() => {
     if (!document.fullscreenElement) {
         sendViolation("EXIT_FULLSCREEN");
@@ -216,6 +215,8 @@ function autoSubmitExam() {
 
 
 
+
     
+
 
 
