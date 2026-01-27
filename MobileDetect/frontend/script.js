@@ -13,17 +13,18 @@ const BACKEND_URL = "https://your-backend.onrender.com/log_violation";
 
 
 function sendViolation(type) {
-    warningCount++;
+    if (!examStarted || isGracePeriod()) return;
 
+    showWarning(type);
+    captureScreenshot();
 
     fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            session_id: SESSION_ID,
-            type: type
-        })
+        body: JSON.stringify({ type })
     });
+}
+
 
     if (warningCount >= MAX_WARNINGS) {
         autoSubmitExam();
@@ -73,8 +74,10 @@ async function startExam() {
     await document.documentElement.requestFullscreen();
 
     const video = await startCamera();
-    await loadMobileModel();     // mobile model
-    startMobileDetection(video); // mobile detection loop
+    setupCanvas(video);
+    await loadMobileModel();
+    startMobileDetection(video);
+
 
     /* TAB SWITCH */
     document.addEventListener("visibilitychange", () => {
@@ -97,6 +100,31 @@ async function startExam() {
             sendViolation("BLOCKED_KEY");
         }
     });
+
+function captureScreenshot() {
+    if (!examStarted || isGracePeriod()) return;
+
+    const video = document.getElementById("camera");
+    const snapCanvas = document.createElement("canvas");
+    const snapCtx = snapCanvas.getContext("2d");
+
+    snapCanvas.width = video.videoWidth;
+    snapCanvas.height = video.videoHeight;
+
+    snapCtx.drawImage(video, 0, 0);
+
+    const imageData = snapCanvas.toDataURL("image/png");
+
+    // Send to backend (optional)
+    fetch(BACKEND_URL + "/screenshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            image: imageData,
+            session_id: SESSION_ID
+        })
+    });
+}
 
 
 function isGracePeriod() {
@@ -236,6 +264,7 @@ function autoSubmitExam() {
 
 
     
+
 
 
 
