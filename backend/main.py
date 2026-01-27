@@ -4,7 +4,7 @@ from supabase import create_client
 import base64, uuid, os
 
 SUPABASE_URL = os.getenv("https://bvhznghgorxwrtedwirb.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_KEY = os.getenv("sb_secret_akYb5jtWRr7zCMhw8E_Lqw_UD-Uun17")
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
