@@ -4,6 +4,16 @@ body {
     text-align: center;
     font-family: Arial;
 }
+#camera {
+  position: relative;
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
 
 video {
     width: 300px;
@@ -30,4 +40,5 @@ button {
 .hidden {
   display: none;
 }
+
 
