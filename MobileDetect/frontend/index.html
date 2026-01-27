@@ -1,34 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Mobile Detection Exam</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <title>Online Assessment</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- TensorFlow + COCO-SSD -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
+
 <body>
+    <h1>Online Assessment</h1>
 
-<h1>Online Assessment</h1>
-<button onclick="startExam()">Start Exam</button>
+    <button onclick="startExam()">Start Exam</button>
 
-<video id="camera" autoplay muted playsinline></video>
-    <canvas id="overlay"></canvas>
-<div id="warning-box" class="warning-box hidden"></div>
+    <div id="camera-container">
+        <video id="camera" autoplay muted playsinline></video>
+        <canvas id="overlay"></canvas>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const supabase = supabase.createClient("SUPABASE_URL","SUPABASE_ANON_KEY");
-supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) window.location.href = "login.html";
-});
-</script>
-
-
-<!-- AI Libraries -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-
-<!-- Your Script -->
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
+
+
 
 
