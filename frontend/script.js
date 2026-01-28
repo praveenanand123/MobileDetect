@@ -1,3 +1,4 @@
+const BACKEND_URL = "https://YOUR_BACKEND_URL";
 const SESSION_ID = crypto.randomUUID();
 let model;
 let detecting = false;
@@ -12,18 +13,24 @@ const SESSION_ID = crypto.randomUUID();
 const BACKEND_URL = "https://your-backend.onrender.com/log_violation";
 
 
-function sendViolation(type) {
-    warningCount++;
+function sendViolation(type, imageData = null) {
+    if (!examStarted || isGracePeriod()) return;
 
+    console.log("Sending violation:", type);
 
-    fetch(BACKEND_URL, {
+    fetch(`${BACKEND_URL}/log_violation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             session_id: SESSION_ID,
-            type: type
+            type: type,
+            image: imageData
         })
-    });
+    })
+    .then(res => res.json())
+    .then(data => console.log("Violation logged:", data))
+    .catch(err => console.error("Violation error:", err));
+}
 
     if (warningCount >= MAX_WARNINGS) {
         autoSubmitExam();
@@ -161,8 +168,9 @@ async function detectMobile(video) {
             if (now - lastMobileTime > 5000) {
                 lastMobileTime = now;
                 console.log("📵 Mobile detected");
-                sendViolation("MOBILE_PHONE_DETECTED");
-                captureScreenshot(video, "MOBILE_PHONE_DETECTED");
+                const image = captureScreenshot(video);
+                sendViolation("MOBILE_PHONE_DETECTED", image);
+
             }
         }
     });
@@ -209,26 +217,17 @@ setInterval(() => {
     }
 }, 3000);
 
-function captureScreenshot(video, violationType) {
+function captureScreenshot(video) {
     const snap = document.createElement("canvas");
     snap.width = video.videoWidth;
     snap.height = video.videoHeight;
-    const ctx = snap.getContext("2d");
 
+    const ctx = snap.getContext("2d");
     ctx.drawImage(video, 0, 0);
 
-    const imageData = snap.toDataURL("image/png");
-
-    fetch("https://YOUR_BACKEND_URL/log_violation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            session_id: SESSION_ID,
-            type: violationType,
-            image: imageData
-        })
-    });
+    return snap.toDataURL("image/png");
 }
+
 
 function autoSubmitExam() {
     document.exitFullscreen();
