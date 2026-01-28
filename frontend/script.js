@@ -14,9 +14,7 @@ const BACKEND_URL = "https://your-backend.onrender.com/log_violation";
 
 
 function sendViolation(type, imageData = null) {
-    if (!examStarted || isGracePeriod()) return;
-
-    console.log("Sending violation:", type);
+    console.log("FORCE sending violation:", type);
 
     fetch(`${BACKEND_URL}/log_violation`, {
         method: "POST",
