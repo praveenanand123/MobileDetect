@@ -5,7 +5,7 @@ from supabase import create_client, Client
 import base64, uuid, os
 
 SUPABASE_URL = os.environ["https://bvhznghgorxwrtedwirb.supabase.co"]
-SUPABASE_KEY = os.environ["sb_secret_akYb5jtWRr7zCMhw8E_Lqw_UD-Uun17"]
+SUPABASE_KEY = os.environ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2aHpuZ2hnb3J4d3J0ZWR3aXJiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODk3Njg2MSwiZXhwIjoyMDg0NTUyODYxfQ.OEGTQudtM8A4vb1lffRQH2QapTmvQetvY8bmH4Av4ak"]
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
