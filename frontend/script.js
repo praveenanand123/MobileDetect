@@ -1,4 +1,5 @@
-const BACKEND_URL = "https://YOUR_BACKEND_URL";
+const BACKEND_URL = "https://YOUR-BACKEND.onrender.com";
+console.log("Backend URL:", BACKEND_URL);
 const SESSION_ID = crypto.randomUUID();
 let model;
 let detecting = false;
