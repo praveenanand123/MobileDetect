@@ -1,6 +1,7 @@
-const BACKEND_URL = "https://YOUR-BACKEND.onrender.com";
-console.log("Backend URL:", BACKEND_URL);
+console.log("SCRIPT LOADED");
+const BACKEND_URL = "https://YOUR-BACKEND-URL.onrender.com";
 const SESSION_ID = crypto.randomUUID();
+console.log("BACKEND_URL =", BACKEND_URL);
 let model;
 let detecting = false;
 let lastMobileTime = 0;
@@ -15,9 +16,9 @@ const BACKEND_URL = "https://your-backend.onrender.com/log_violation";
 
 
 function sendViolation(type, imageData = null) {
-    console.log("FORCE sending violation:", type);
+    console.log("sendViolation called:", type);
 
-    fetch(`${BACKEND_URL}/log_violation`, {
+    fetch(BACKEND_URL + "/log_violation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -26,10 +27,11 @@ function sendViolation(type, imageData = null) {
             image: imageData
         })
     })
-    .then(res => res.json())
-    .then(data => console.log("Violation logged:", data))
-    .catch(err => console.error("Violation error:", err));
+    .then(r => r.text())
+    .then(t => console.log("Backend response:", t))
+    .catch(e => console.error("FETCH ERROR:", e));
 }
+
 
     if (warningCount >= MAX_WARNINGS) {
         autoSubmitExam();
