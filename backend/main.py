@@ -18,22 +18,31 @@ class Violation(BaseModel):
 
 @app.post("/log_violation")
 def log_violation(v: Violation):
+    print("RECEIVED:", v)
+
     screenshot_url = None
 
     if v.image:
-        image_bytes = base64.b64decode(v.image.split(",")[1])
+        print("UPLOADING IMAGE...")
+        img_data = base64.b64decode(v.image.split(",")[1])
         filename = f"{uuid.uuid4()}.png"
 
         supabase.storage.from_("violations").upload(
-            filename, image_bytes, {"content-type": "image/png"}
+            filename,
+            img_data,
+            {"content-type": "image/png"}
         )
 
         screenshot_url = supabase.storage.from_("violations").get_public_url(filename)
+        print("IMAGE URL:", screenshot_url)
 
+    print("INSERTING ROW...")
     supabase.table("violations").insert({
         "session_id": v.session_id,
         "type": v.type,
         "screenshot_url": screenshot_url
     }).execute()
 
-    return {"status": "logged"}
+    print("DONE")
+    return {"status": "ok"}
+
