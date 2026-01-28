@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from supabase import create_client, Client
 import base64, uuid, os
 
-SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_URL = os.environ["https://bvhznghgorxwrtedwirb.supabase.co"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
